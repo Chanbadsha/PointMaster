@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useSession } from '../../hooks/use-session.js';
 import LogoutButton from '../../features/auth/components/LogoutButton.jsx';
 
@@ -39,10 +40,13 @@ export default function DashboardContent() {
           <p className="text-gray-500 text-sm">{user?.email}</p>
         </div>
 
-        <div className="p-6 bg-gray-800 rounded-lg border border-gray-700">
-          <h2 className="text-lg font-semibold mb-2">Rooms</h2>
-          <p className="text-gray-400 text-sm">No rooms yet</p>
-        </div>
+        <Link
+          href="/players"
+          className="p-6 bg-gray-800 rounded-lg border border-gray-700 hover:border-blue-500 transition block"
+        >
+          <h2 className="text-lg font-semibold mb-2">Players</h2>
+          <p className="text-gray-400 text-sm">Manage players &rarr;</p>
+        </Link>
 
         <div className="p-6 bg-gray-800 rounded-lg border border-gray-700">
           <h2 className="text-lg font-semibold mb-2">Recent Matches</h2>
