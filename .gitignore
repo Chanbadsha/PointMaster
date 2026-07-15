@@ -4,4 +4,5 @@ node_modules
 .next
 out
 agents.md
+!AGENTS.md
 docs
