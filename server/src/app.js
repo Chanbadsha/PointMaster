@@ -5,8 +5,15 @@ import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import corsOptions from './config/cors.js';
+import userRoutes from './routes/user-routes.js';
 import errorHandler from './middlewares/error-handler.js';
 import notFound from './middlewares/not-found.js';
+
+let authHandlerRef = null;
+
+export function setAuthHandler(handler) {
+  authHandlerRef = handler;
+}
 
 const app = express();
 
@@ -28,6 +35,15 @@ const limiter = rateLimit({
 });
 
 app.use('/api', limiter);
+
+app.use('/api/auth', (req, res, next) => {
+  if (authHandlerRef) {
+    return authHandlerRef(req, res, next);
+  }
+  next();
+});
+
+app.use('/api/v1/users', userRoutes);
 
 app.get('/api/v1/health', (_req, res) => {
   res.json({ success: true, message: 'Server is running', data: null });
