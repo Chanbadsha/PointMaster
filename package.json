@@ -1,0 +1,6 @@
+{
+  "name": "pointmaster",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Web app for managing offline card game scores (Twenty-Nine, Call Bridge)"
+}
