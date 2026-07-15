@@ -41,6 +41,14 @@ export default function DashboardContent() {
         </div>
 
         <Link
+          href="/rooms"
+          className="p-6 bg-gray-800 rounded-lg border border-gray-700 hover:border-blue-500 transition block"
+        >
+          <h2 className="text-lg font-semibold mb-2">Rooms</h2>
+          <p className="text-gray-400 text-sm">Manage rooms &rarr;</p>
+        </Link>
+
+        <Link
           href="/players"
           className="p-6 bg-gray-800 rounded-lg border border-gray-700 hover:border-blue-500 transition block"
         >
