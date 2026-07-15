@@ -1,7 +1,9 @@
 import { createServer } from 'node:http';
-import app from './app.js';
+import app, { setAuthHandler } from './app.js';
 import env from './config/env.js';
 import { connectDatabase } from './database/index.js';
+import { getAuth, initializeAuth } from './config/better-auth.js';
+import { toNodeHandler } from 'better-auth/node';
 import { initializeSocket } from './sockets/index.js';
 
 const server = createServer(app);
@@ -9,6 +11,10 @@ const server = createServer(app);
 async function start() {
   try {
     await connectDatabase();
+
+    initializeAuth();
+
+    setAuthHandler(toNodeHandler(getAuth()));
 
     initializeSocket(server);
 
