@@ -15,6 +15,11 @@ export async function getPlayer(id) {
   return data.player;
 }
 
+export async function getMyPlayer() {
+  const { data } = await api.get('/players/me');
+  return data.player;
+}
+
 export async function createPlayer(playerData) {
   const { data } = await api.post('/players', playerData);
   return data.player;

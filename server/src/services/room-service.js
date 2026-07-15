@@ -70,8 +70,24 @@ export async function getAllRooms() {
   const db = getDb();
   const rooms = await db
     .collection(COLLECTION)
-    .find({ deletedAt: { $exists: false } })
-    .sort({ createdAt: -1 })
+    .aggregate([
+      { $match: { deletedAt: { $exists: false } } },
+      {
+        $lookup: {
+          from: 'roomMembers',
+          localField: '_id',
+          foreignField: 'roomId',
+          as: 'members',
+        },
+      },
+      {
+        $addFields: {
+          memberCount: { $size: '$members' },
+        },
+      },
+      { $project: { members: 0 } },
+      { $sort: { createdAt: -1 } },
+    ])
     .toArray();
   return rooms;
 }

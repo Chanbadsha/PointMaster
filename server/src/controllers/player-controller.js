@@ -125,6 +125,20 @@ export async function listPlayers(req, res) {
   }
 }
 
+export async function getMyPlayer(req, res) {
+  try {
+    const player = await playerService.getPlayerByUserId(req.user.id);
+
+    if (!player) {
+      return errorResponse(res, 'No player linked to your account', [], 404);
+    }
+
+    return successResponse(res, { player });
+  } catch (error) {
+    return errorResponse(res, 'Failed to fetch player', [error.message], 500);
+  }
+}
+
 export async function linkPlayer(req, res) {
   try {
     const { id } = req.params;
