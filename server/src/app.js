@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import corsOptions from './config/cors.js';
 import userRoutes from './routes/user-routes.js';
+import playerRoutes from './routes/player-routes.js';
 import errorHandler from './middlewares/error-handler.js';
 import notFound from './middlewares/not-found.js';
 
@@ -44,6 +45,7 @@ app.use('/api/auth', (req, res, next) => {
 });
 
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/players', playerRoutes);
 
 app.get('/api/v1/health', (_req, res) => {
   res.json({ success: true, message: 'Server is running', data: null });
