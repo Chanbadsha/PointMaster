@@ -3,7 +3,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useSession } from '../../hooks/use-session.js';
-import { getRooms, deleteRoom } from '../../features/rooms/services/room-service.js';
+import {
+  getRooms,
+  deleteRoom,
+  joinRoom,
+} from '../../features/rooms/services/room-service.js';
 
 export default function RoomsContent() {
   const { loading: authLoading, isAuthenticated } = useSession();
@@ -11,6 +15,11 @@ export default function RoomsContent() {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const [showJoinInput, setShowJoinInput] = useState(false);
+  const [roomCode, setRoomCode] = useState('');
+  const [joining, setJoining] = useState(false);
+  const [joinError, setJoinError] = useState('');
 
   const fetchRooms = useCallback(async () => {
     setLoading(true);
@@ -42,6 +51,23 @@ export default function RoomsContent() {
     }
   }
 
+  async function handleJoinRoom(e) {
+    e.preventDefault();
+    setJoinError('');
+    setJoining(true);
+
+    try {
+      const result = await joinRoom(roomCode.toUpperCase());
+      setRoomCode('');
+      setShowJoinInput(false);
+      await fetchRooms();
+    } catch (err) {
+      setJoinError(err.message);
+    } finally {
+      setJoining(false);
+    }
+  }
+
   if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -64,13 +90,59 @@ export default function RoomsContent() {
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold">Rooms</h1>
-          <Link
-            href="/rooms/create"
-            className="py-2 px-4 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition"
-          >
-            Create Room
-          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                setShowJoinInput(!showJoinInput);
+                setJoinError('');
+              }}
+              className="py-2 px-4 bg-green-700 hover:bg-green-600 rounded-lg font-medium transition"
+            >
+              Join Room
+            </button>
+            <Link
+              href="/rooms/create"
+              className="py-2 px-4 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition"
+            >
+              Create Room
+            </Link>
+          </div>
         </div>
+
+        {showJoinInput && (
+          <form
+            onSubmit={handleJoinRoom}
+            className="mb-6 p-4 bg-gray-800 rounded-lg border border-gray-700"
+          >
+            <label
+              htmlFor="room-code"
+              className="block text-sm font-medium mb-1"
+            >
+              Enter Room Code
+            </label>
+            <div className="flex gap-2">
+              <input
+                id="room-code"
+                type="text"
+                value={roomCode}
+                onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+                placeholder="e.g. ABC123"
+                maxLength={6}
+                className="flex-1 px-3 py-2 border border-gray-600 rounded-lg bg-gray-900 text-white uppercase font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                type="submit"
+                disabled={joining || roomCode.length !== 6}
+                className="py-2 px-4 bg-green-700 hover:bg-green-600 disabled:opacity-50 rounded-lg font-medium transition"
+              >
+                {joining ? 'Joining...' : 'Join'}
+              </button>
+            </div>
+            {joinError && (
+              <p className="mt-2 text-red-400 text-sm">{joinError}</p>
+            )}
+          </form>
+        )}
 
         {error && (
           <div className="mb-4 p-3 bg-red-900/50 border border-red-700 rounded-lg">
@@ -82,7 +154,7 @@ export default function RoomsContent() {
           <p className="text-gray-400 text-center py-8">Loading rooms...</p>
         ) : rooms.length === 0 ? (
           <p className="text-gray-400 text-center py-8">
-            No rooms yet. Create one to get started.
+            No rooms yet. Create or join one to get started.
           </p>
         ) : (
           <div className="space-y-3">
@@ -110,19 +182,29 @@ export default function RoomsContent() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <Link
-                    href={`/rooms/${room._id}`}
-                    className="text-xs py-1 px-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition"
-                  >
-                    View
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(room._id)}
-                    className="text-xs py-1 px-3 bg-red-700 hover:bg-red-600 rounded-lg transition"
-                  >
-                    Delete
-                  </button>
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <span className="text-xs text-gray-400 block">
+                      Members
+                    </span>
+                    <span className="text-sm font-medium">
+                      {room.memberCount ?? 0}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Link
+                      href={`/rooms/${room._id}`}
+                      className="text-xs py-1 px-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition"
+                    >
+                      View
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(room._id)}
+                      className="text-xs py-1 px-3 bg-red-700 hover:bg-red-600 rounded-lg transition"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

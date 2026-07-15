@@ -57,6 +57,14 @@ export async function searchPlayers(query) {
   return players;
 }
 
+export async function getPlayerByUserId(userId) {
+  const db = getDb();
+  const player = await db
+    .collection(COLLECTION)
+    .findOne({ linkedUserId: new ObjectId(userId) });
+  return player;
+}
+
 export async function getAllPlayers() {
   const db = getDb();
   const players = await db
