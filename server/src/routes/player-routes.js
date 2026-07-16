@@ -8,6 +8,7 @@ import {
   searchPlayers,
   listPlayers,
   getMyPlayer,
+  ensureLinked,
   linkPlayer,
   unlinkPlayer,
 } from '../controllers/player-controller.js';
@@ -18,6 +19,7 @@ router.use(authenticate);
 
 router.post('/', createPlayer);
 router.get('/', listPlayers);
+router.post('/ensure-linked', ensureLinked);
 router.get('/search', searchPlayers);
 router.get('/me', getMyPlayer);
 router.get('/:id', getPlayer);

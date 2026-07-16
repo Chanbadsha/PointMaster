@@ -1,4 +1,5 @@
 import { authClient } from '../../../lib/auth-client.js';
+import { api } from '../../../lib/fetch.js';
 
 export async function signUp(email, password, name) {
   const { data, error } = await authClient.signUp.email(
@@ -9,6 +10,8 @@ export async function signUp(email, password, name) {
   if (error) {
     throw new Error(error.message || 'Registration failed');
   }
+
+  await api.post('/players/ensure-linked', {}).catch(() => {});
 
   return data;
 }
@@ -22,6 +25,8 @@ export async function signIn(email, password) {
   if (error) {
     throw new Error(error.message || 'Login failed');
   }
+
+  await api.post('/players/ensure-linked', {}).catch(() => {});
 
   return data;
 }
