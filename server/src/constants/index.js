@@ -33,6 +33,11 @@ export const PERMISSIONS = Object.freeze({
   'match:resume': [ROLES.MODERATOR, ROLES.ADMIN],
   'match:finish': [ROLES.ADMIN],
   'rbac:manage': [ROLES.ADMIN],
+  'team:create': [ROLES.ADMIN],
+  'team:read': [ROLES.PLAYER, ROLES.MODERATOR, ROLES.ADMIN],
+  'team:update': [ROLES.ADMIN],
+  'team:delete': [ROLES.ADMIN],
+  'team:validate': [ROLES.MODERATOR, ROLES.ADMIN],
 });
 
 export const PERMISSION_ACTIONS = Object.freeze(Object.keys(PERMISSIONS));

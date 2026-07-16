@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb';
 import { getDb } from '../database/index.js';
-import { MATCH_STATUS, MATCH_TRANSITIONS } from '../constants/index.js';
+import { MATCH_STATUS, MATCH_TRANSITIONS, GAME_TYPES } from '../constants/index.js';
 
 const COLLECTION = 'matches';
 
@@ -89,6 +89,37 @@ export async function transitionMatchStatus(matchId, newStatus) {
       error: `Cannot transition from '${match.status}' to '${newStatus}'`,
       status: 400,
     };
+  }
+
+  if (newStatus === MATCH_STATUS.LIVE) {
+    if (match.game === GAME_TYPES.TWENTY_NINE) {
+      const teams = await db.collection('teams').find({
+        matchId: new ObjectId(matchId),
+      }).toArray();
+
+      if (teams.length !== 2) {
+        return { error: 'Twenty-Nine requires exactly 2 teams to start', status: 400 };
+      }
+
+      for (const team of teams) {
+        if (team.playerIds.length !== 2) {
+          return { error: `Team "${team.name}" must have exactly 2 players for Twenty-Nine`, status: 400 };
+        }
+      }
+
+      const teamSizes = teams.map((t) => t.playerIds.length);
+      if (new Set(teamSizes).size > 1) {
+        return { error: 'All teams must have the same number of players', status: 400 };
+      }
+
+      const allPlayerIds = teams.flatMap((t) =>
+        t.playerIds.map((p) => p.toString())
+      );
+      const uniquePlayerIds = new Set(allPlayerIds);
+      if (allPlayerIds.length !== uniquePlayerIds.size) {
+        return { error: 'A player cannot be assigned to multiple teams', status: 400 };
+      }
+    }
   }
 
   const now = new Date();

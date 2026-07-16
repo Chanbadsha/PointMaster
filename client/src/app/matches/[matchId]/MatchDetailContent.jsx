@@ -13,6 +13,7 @@ import {
   finishMatch,
 } from '../../../features/matches/services/match-service.js';
 import { MATCH_STATUS } from '../../../constants/index.js';
+import TeamSection from './TeamSection.jsx';
 
 export default function MatchDetailContent({ matchId }) {
   const router = useRouter();
@@ -248,6 +249,15 @@ export default function MatchDetailContent({ matchId }) {
               <p className="font-medium">{match.winner || 'TBD'}</p>
             </div>
           </div>
+        </div>
+
+        <div className="mt-6">
+          <TeamSection
+            matchId={matchId}
+            roomId={match.roomId}
+            matchStatus={match.status}
+            onError={setError}
+          />
         </div>
 
         {error && (
