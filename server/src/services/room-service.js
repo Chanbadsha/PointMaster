@@ -45,6 +45,17 @@ export async function createRoom(data) {
   };
 
   const result = await db.collection(COLLECTION).insertOne(room);
+
+  const player = await db.collection('players').findOne({ linkedUserId: new ObjectId(data.ownerId) });
+  if (player) {
+    await db.collection('roomMembers').insertOne({
+      roomId: result.insertedId,
+      playerId: player._id,
+      role: 'Admin',
+      joinedAt: now,
+    });
+  }
+
   return { ...room, _id: result.insertedId };
 }
 
