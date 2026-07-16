@@ -36,7 +36,7 @@ async function resolveMatchRoom(req, res, next) {
   next();
 }
 
-router.get('/:id', resolveMatchRoom, requireRoomRole(ROLES.PLAYER), getMatch);
+router.get('/:id', getMatch);
 router.patch('/:id', resolveMatchRoom, requireRoomRole(ROLES.ADMIN), updateMatch);
 router.delete('/:id', resolveMatchRoom, requireRoomRole(ROLES.ADMIN), deleteMatch);
 
