@@ -46,15 +46,26 @@ export async function createRoom(data) {
 
   const result = await db.collection(COLLECTION).insertOne(room);
 
-  const player = await db.collection('players').findOne({ linkedUserId: new ObjectId(data.ownerId) });
-  if (player) {
-    await db.collection('roomMembers').insertOne({
-      roomId: result.insertedId,
-      playerId: player._id,
-      role: 'Admin',
-      joinedAt: now,
+  let player = await db.collection('players').findOne({ linkedUserId: new ObjectId(data.ownerId) });
+  if (!player) {
+    const user = await db.collection('user').findOne({ _id: new ObjectId(data.ownerId) });
+    const insertResult = await db.collection('players').insertOne({
+      name: user?.name || 'Player',
+      isGuest: false,
+      createdBy: new ObjectId(data.ownerId),
+      linkedUserId: new ObjectId(data.ownerId),
+      createdAt: now,
+      updatedAt: now,
     });
+    player = { _id: insertResult.insertedId, linkedUserId: new ObjectId(data.ownerId) };
   }
+
+  await db.collection('roomMembers').insertOne({
+    roomId: result.insertedId,
+    playerId: player._id,
+    role: 'Admin',
+    joinedAt: now,
+  });
 
   return { ...room, _id: result.insertedId };
 }

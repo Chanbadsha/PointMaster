@@ -25,3 +25,17 @@
 **Fix:** After inserting the room, look up the player by `linkedUserId` and insert a `roomMembers` document with `role: 'Admin'`.
 
 **Severity:** High — made the room completely unmanageable by the creator.
+
+---
+
+## Bug 3: `room-service.js` — Player not auto-created on signup
+
+**File:** `server/src/services/room-service.js:49-62`
+
+**Symptom:** "Player profile not found" (404) when trying to view a room detail page after creating a room as a freshly-signed-up user. The signup flow via Better Auth creates a `user` record, but no corresponding `players` document with `linkedUserId` is created.
+
+**Root cause:** The `requireRoomRole(ROLES.PLAYER)` middleware on `GET /rooms/:id` looks up a player by `linkedUserId`. If the user never manually created a player and linked it, the lookup returns null, causing a 404 error. The frontend Create Room page navigates to the room detail after creation, which then fails.
+
+**Fix:** In `createRoom()`, if no linked player exists for the owner, auto-create one using the user's name from the `user` collection. This ensures a fresh signup can immediately create and view rooms without an extra manual player-creation step.
+
+**Severity:** High — blocked the main user flow (signup → create room → view room).
