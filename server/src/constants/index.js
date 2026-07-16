@@ -24,6 +24,14 @@ export const PERMISSIONS = Object.freeze({
   'room:member:manage': [ROLES.MODERATOR, ROLES.ADMIN],
   'user:read': [ROLES.PLAYER, ROLES.MODERATOR, ROLES.ADMIN],
   'user:manage': [ROLES.MODERATOR, ROLES.ADMIN],
+  'match:create': [ROLES.ADMIN],
+  'match:read': [ROLES.PLAYER, ROLES.MODERATOR, ROLES.ADMIN],
+  'match:update': [ROLES.ADMIN],
+  'match:delete': [ROLES.ADMIN],
+  'match:start': [ROLES.ADMIN],
+  'match:pause': [ROLES.MODERATOR, ROLES.ADMIN],
+  'match:resume': [ROLES.MODERATOR, ROLES.ADMIN],
+  'match:finish': [ROLES.ADMIN],
   'rbac:manage': [ROLES.ADMIN],
 });
 
@@ -31,9 +39,20 @@ export const PERMISSION_ACTIONS = Object.freeze(Object.keys(PERMISSIONS));
 
 export const MATCH_STATUS = Object.freeze({
   PENDING: 'pending',
-  IN_PROGRESS: 'in_progress',
-  COMPLETED: 'completed',
-  CANCELLED: 'cancelled',
+  PREPARING: 'preparing',
+  LIVE: 'live',
+  PAUSED: 'paused',
+  FINISHED: 'finished',
+  ARCHIVED: 'archived',
+});
+
+export const MATCH_TRANSITIONS = Object.freeze({
+  [MATCH_STATUS.PENDING]: [MATCH_STATUS.PREPARING, MATCH_STATUS.LIVE],
+  [MATCH_STATUS.PREPARING]: [MATCH_STATUS.LIVE],
+  [MATCH_STATUS.LIVE]: [MATCH_STATUS.PAUSED, MATCH_STATUS.FINISHED],
+  [MATCH_STATUS.PAUSED]: [MATCH_STATUS.LIVE, MATCH_STATUS.FINISHED],
+  [MATCH_STATUS.FINISHED]: [MATCH_STATUS.ARCHIVED],
+  [MATCH_STATUS.ARCHIVED]: [],
 });
 
 export const ROOM_STATUS = Object.freeze({

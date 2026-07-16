@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useSession } from '../../../hooks/use-session.js';
 import {
   getRoom,
@@ -14,6 +15,11 @@ import {
   leaveRoom,
 } from '../../../features/rooms/services/room-service.js';
 import { getMyPlayer, searchPlayers } from '../../../features/players/services/player-service.js';
+import {
+  getRoomMatches,
+  createMatch,
+} from '../../../features/matches/services/match-service.js';
+import { MATCH_STATUS, GAME_TYPES } from '../../../constants/index.js';
 
 export default function RoomDetailContent({ roomId }) {
   const router = useRouter();
@@ -38,6 +44,12 @@ export default function RoomDetailContent({ roomId }) {
   const [showAddPlayer, setShowAddPlayer] = useState(false);
 
   const [myPlayerId, setMyPlayerId] = useState(null);
+
+  const [matches, setMatches] = useState([]);
+  const [showCreateMatch, setShowCreateMatch] = useState(false);
+  const [selectedGame, setSelectedGame] = useState(GAME_TYPES.TWENTY_NINE);
+  const [creatingMatch, setCreatingMatch] = useState(false);
+  const [matchError, setMatchError] = useState('');
 
   useEffect(() => {
     if (!isAuthenticated || !roomId) return;
@@ -76,6 +88,21 @@ export default function RoomDetailContent({ roomId }) {
 
     fetchMembers();
   }, [isAuthenticated, roomId, fetchMembers]);
+
+  const fetchMatches = useCallback(async () => {
+    try {
+      const data = await getRoomMatches(roomId);
+      setMatches(data);
+    } catch (err) {
+      console.error('Failed to fetch matches:', err);
+    }
+  }, [roomId]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !roomId) return;
+
+    fetchMatches();
+  }, [isAuthenticated, roomId, fetchMatches]);
 
   useEffect(() => {
     if (!user) return;
@@ -167,6 +194,23 @@ export default function RoomDetailContent({ roomId }) {
       router.push('/rooms');
     } catch (err) {
       setError(err.message);
+    }
+  }
+
+  async function handleCreateMatch(e) {
+    e.preventDefault();
+    setMatchError('');
+    setCreatingMatch(true);
+
+    try {
+      const match = await createMatch(roomId, { game: selectedGame });
+      setShowCreateMatch(false);
+      setSelectedGame(GAME_TYPES.TWENTY_NINE);
+      await fetchMatches();
+    } catch (err) {
+      setMatchError(err.message);
+    } finally {
+      setCreatingMatch(false);
     }
   }
 
@@ -514,6 +558,102 @@ export default function RoomDetailContent({ roomId }) {
                       </>
                     )}
                   </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="border-t border-gray-700 pt-6 mt-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold">
+              Matches ({matches.length})
+            </h2>
+            {isOwner() && (
+              <button
+                onClick={() => setShowCreateMatch(!showCreateMatch)}
+                className="py-1.5 px-3 bg-green-700 hover:bg-green-600 rounded-lg text-sm transition"
+              >
+                {showCreateMatch ? 'Cancel' : 'Create Match'}
+              </button>
+            )}
+          </div>
+
+          {showCreateMatch && isOwner() && (
+            <form
+              onSubmit={handleCreateMatch}
+              className="mb-4 p-4 bg-gray-800 rounded-lg border border-gray-700"
+            >
+              <label
+                htmlFor="game-type"
+                className="block text-sm font-medium mb-1"
+              >
+                Game Type
+              </label>
+              <select
+                id="game-type"
+                value={selectedGame}
+                onChange={(e) => setSelectedGame(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-600 rounded-lg bg-gray-900 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3"
+              >
+                <option value={GAME_TYPES.TWENTY_NINE}>Twenty-Nine</option>
+                <option value={GAME_TYPES.CALL_BRIDGE}>Call Bridge</option>
+              </select>
+
+              {matchError && (
+                <p className="text-red-400 text-sm mb-2">{matchError}</p>
+              )}
+
+              <button
+                type="submit"
+                disabled={creatingMatch}
+                className="py-2 px-4 bg-green-700 hover:bg-green-600 disabled:opacity-50 rounded-lg font-medium transition text-sm"
+              >
+                {creatingMatch ? 'Creating...' : 'Create Match'}
+              </button>
+            </form>
+          )}
+
+          {matches.length === 0 ? (
+            <p className="text-gray-500 text-center py-4">
+              No matches yet. Create one to get started.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {matches.map((match) => (
+                <div
+                  key={match._id}
+                  className="flex items-center justify-between p-3 bg-gray-800 rounded-lg border border-gray-700"
+                >
+                  <div>
+                    <Link
+                      href={`/matches/${match._id}`}
+                      className="font-medium text-sm hover:text-blue-400 transition capitalize"
+                    >
+                      {match.game} Match
+                    </Link>
+                    <div className="flex gap-2 mt-1">
+                      <span className={`text-xs px-1.5 py-0.5 rounded ${
+                        match.status === MATCH_STATUS.LIVE
+                          ? 'bg-green-900/50 text-green-400'
+                          : match.status === MATCH_STATUS.PAUSED
+                            ? 'bg-orange-900/50 text-orange-400'
+                            : match.status === MATCH_STATUS.FINISHED
+                              ? 'bg-gray-700 text-gray-300'
+                              : match.status === MATCH_STATUS.PENDING
+                                ? 'bg-yellow-900/50 text-yellow-400'
+                                : 'bg-gray-700 text-gray-300'
+                      }`}>
+                        {match.status}
+                      </span>
+                    </div>
+                  </div>
+                  <Link
+                    href={`/matches/${match._id}`}
+                    className="text-xs py-1 px-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition"
+                  >
+                    View
+                  </Link>
                 </div>
               ))}
             </div>

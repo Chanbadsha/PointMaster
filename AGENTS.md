@@ -16,6 +16,7 @@ Web app for managing offline card game scores (Twenty-Nine, Call Bridge).
 - Layer flow: `Routes → Controllers → Services → Database`. No business logic in routes/controllers.
 - Game engines (`game-engine/twenty-nine/`, `game-engine/call-bridge/`) must never import Express, MongoDB, Socket.IO, or frontend code.
 - API envelope: `{ success, message, data }` / `{ success, message, errors }`.
+- API prefix: `/api/auth` (Better Auth handler), `/api/v1/*` (app routes).
 
 ## Conventions
 
@@ -30,6 +31,7 @@ Web app for managing offline card game scores (Twenty-Nine, Call Bridge).
 | UI | HeroUI + Tailwind |
 | Data fetching | `fetch()` in Server Components; native `fetch()` in Client Components — never `useEffect` for data |
 | Socket events | `resource:action` (e.g. `room:join`, `score:updated`) |
+| Client config files | CJS (`module.exports`) — app code is ESM (`import`/`export`) |
 
 ## Dev commands
 
@@ -59,7 +61,7 @@ pointmaster/
 │   ├── src/routes/      — express.Router() only
 │   ├── src/controllers/ — call services, return responses
 │   ├── src/services/    — business logic
-│   ├── src/middlewares/  — auth.js, error-handler.js, not-found.js
+│   ├── src/middlewares/  — auth.js, authorize.js, error-handler.js, not-found.js
 │   ├── src/validators/  — Zod schemas
 │   ├── src/sockets/     — Socket.IO init
 │   ├── src/game-engine/ — twenty-nine/, call-bridge/, shared/
@@ -78,6 +80,8 @@ pointmaster/
 - **Client-side**: import is `createAuthClient` (not `createBetterAuthClient`). Base URL must include `/api/auth` suffix.
 - **Sign-out** requires `Content-Type: application/json` — send `{}` as body.
 - **Auth middleware** (`middlewares/auth.js`) uses `auth.api.getSession({ headers: req.headers })` to verify sessions. Attaches `req.user` and `req.session`.
+- **Authorization middleware** (`middlewares/authorize.js`): `requireRoomRole(minimumRole)` for minimum-role checks, `requireRoomPermission(...permissions)` for granular checks. Both require `req.user` from `authenticate`.
+- **RBAC service** (`services/rbac-service.js`) provides `hasMinRole()` and `roomHasPermission()` backed by shorthand constants in `constants/index.js` (ROLES, PERMISSIONS, ROLE_HIERARCHY).
 
 ## Environment
 
@@ -106,7 +110,11 @@ SOCKET_CORS_ORIGIN=http://localhost:3000
 
 - **`docs/` and `agents.md` (lowercase) are gitignored**. `AGENTS.md` (uppercase) is tracked. The entire `docs/` is excluded from version control — spec files exist locally but are not committed.
 - **MongoDB URI database name is case-sensitive** on Atlas. The existing DB is lowercase `pointmaster`. Using `PointMaster` in URI causes "db already exists with different case" errors and Better Auth sign-up failures.
-- **`README.md` exists but is empty**.
 - **Better Auth creates its own collections** (`user`, `session`, `account`, `verification`) via the MongoDB adapter. The app also maintains a `users` collection for app-specific profile fields (`linkedPlayerId`).
 - **Rate limiter** is at 100 req/15min on `/api`.
 - **No ESLint config file exists** — `npm run lint` will fail until one is created.
+- **Dark mode default**: root layout has `<html className="dark">` — expect dark theme throughout.
+- **Socket client** (`lib/socket.js`): uses `autoConnect: false` + `withCredentials: true`. Call `connectSocket()` explicitly to connect.
+- **API client** (`lib/fetch.js`): wraps native `fetch()` with `credentials: 'include'`. Use this instead of raw `fetch()` in client components.
+- **`call-bridge/` game engine** is fully scaffolded (engine.js, scorer.js, validator.js, winner.js, constants.js, index.js) — same structure as `twenty-nine/`.
+- **`SOCKET_CORS_ORIGIN`** is a separate env var from `CLIENT_URL` — both needed for Socket.IO and CORS respectively.

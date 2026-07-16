@@ -8,6 +8,7 @@ import corsOptions from './config/cors.js';
 import userRoutes from './routes/user-routes.js';
 import playerRoutes from './routes/player-routes.js';
 import roomRoutes from './routes/room-routes.js';
+import matchRoutes from './routes/match-routes.js';
 import errorHandler from './middlewares/error-handler.js';
 import notFound from './middlewares/not-found.js';
 
@@ -48,6 +49,7 @@ app.use('/api/auth', (req, res, next) => {
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/players', playerRoutes);
 app.use('/api/v1/rooms', roomRoutes);
+app.use('/api/v1/matches', matchRoutes);
 
 app.get('/api/v1/health', (_req, res) => {
   res.json({ success: true, message: 'Server is running', data: null });

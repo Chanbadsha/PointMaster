@@ -56,10 +56,13 @@ export default function DashboardContent() {
           <p className="text-gray-400 text-sm">Manage players &rarr;</p>
         </Link>
 
-        <div className="p-6 bg-gray-800 rounded-lg border border-gray-700">
+        <Link
+          href="/rooms"
+          className="p-6 bg-gray-800 rounded-lg border border-gray-700 hover:border-blue-500 transition block"
+        >
           <h2 className="text-lg font-semibold mb-2">Recent Matches</h2>
-          <p className="text-gray-400 text-sm">No matches yet</p>
-        </div>
+          <p className="text-gray-400 text-sm">View matches in rooms &rarr;</p>
+        </Link>
       </div>
     </div>
   );

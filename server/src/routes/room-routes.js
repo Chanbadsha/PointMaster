@@ -17,6 +17,10 @@ import {
   joinRoom,
   leaveRoom,
 } from '../controllers/room-member-controller.js';
+import {
+  createMatch,
+  listMatches,
+} from '../controllers/match-controller.js';
 
 const router = Router();
 
@@ -36,5 +40,8 @@ router.post('/:roomId/members', requireRoomRole(ROLES.MODERATOR), addMember);
 router.delete('/:roomId/members/me', leaveRoom);
 router.delete('/:roomId/members/:playerId', requireRoomRole(ROLES.ADMIN), removeMember);
 router.patch('/:roomId/members/:playerId/role', requireRoomRole(ROLES.ADMIN), updateMemberRole);
+
+router.post('/:roomId/matches', requireRoomRole(ROLES.ADMIN), createMatch);
+router.get('/:roomId/matches', requireRoomRole(ROLES.PLAYER), listMatches);
 
 export default router;
