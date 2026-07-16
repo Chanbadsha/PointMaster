@@ -21,6 +21,10 @@ async function createIndexes(db) {
     { roomId: 1, playerId: 1 },
     { unique: true, name: 'roomId_1_playerId_1' }
   );
+  await db.collection('teams').createIndex(
+    { matchId: 1 },
+    { name: 'matchId_1' }
+  );
   console.log('Database indexes created');
 }
 

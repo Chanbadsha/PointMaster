@@ -14,6 +14,13 @@ import {
   resumeMatch,
   finishMatch,
 } from '../controllers/match-controller.js';
+import {
+  createTeam,
+  listTeams,
+  updateTeam,
+  deleteTeam,
+  validateTeams,
+} from '../controllers/team-controller.js';
 
 const router = Router();
 
@@ -44,5 +51,11 @@ router.patch('/:id/start', resolveMatchRoom, requireRoomRole(ROLES.ADMIN), start
 router.patch('/:id/pause', resolveMatchRoom, requireRoomRole(ROLES.MODERATOR), pauseMatch);
 router.patch('/:id/resume', resolveMatchRoom, requireRoomRole(ROLES.MODERATOR), resumeMatch);
 router.patch('/:id/finish', resolveMatchRoom, requireRoomRole(ROLES.ADMIN), finishMatch);
+
+router.get('/:id/teams', resolveMatchRoom, requireRoomRole(ROLES.PLAYER), listTeams);
+router.post('/:id/teams', resolveMatchRoom, requireRoomRole(ROLES.MODERATOR), createTeam);
+router.post('/:id/teams/validate', resolveMatchRoom, requireRoomRole(ROLES.MODERATOR), validateTeams);
+router.patch('/:id/teams/:teamId', resolveMatchRoom, requireRoomRole(ROLES.MODERATOR), updateTeam);
+router.delete('/:id/teams/:teamId', resolveMatchRoom, requireRoomRole(ROLES.MODERATOR), deleteTeam);
 
 export default router;
