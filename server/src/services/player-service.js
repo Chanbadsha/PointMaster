@@ -95,6 +95,28 @@ export async function linkUserToPlayer(playerId, userId) {
   return player;
 }
 
+export async function ensurePlayerLinked(userId, name) {
+  const db = getDb();
+  const existing = await db
+    .collection(COLLECTION)
+    .findOne({ linkedUserId: new ObjectId(userId) });
+
+  if (existing) return existing;
+
+  const now = new Date();
+  const player = {
+    name: name || 'Unknown Player',
+    isGuest: false,
+    createdBy: new ObjectId(userId),
+    linkedUserId: new ObjectId(userId),
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  const result = await db.collection(COLLECTION).insertOne(player);
+  return { ...player, _id: result.insertedId };
+}
+
 export async function unlinkPlayer(playerId) {
   const db = getDb();
   const now = new Date();

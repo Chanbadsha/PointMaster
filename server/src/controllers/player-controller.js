@@ -139,6 +139,15 @@ export async function getMyPlayer(req, res) {
   }
 }
 
+export async function ensureLinked(req, res) {
+  try {
+    const player = await playerService.ensurePlayerLinked(req.user.id, req.user.name);
+    return successResponse(res, { player }, 'Player linked');
+  } catch (error) {
+    return errorResponse(res, 'Failed to ensure player linked', [error.message], 500);
+  }
+}
+
 export async function linkPlayer(req, res) {
   try {
     const { id } = req.params;

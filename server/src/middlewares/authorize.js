@@ -22,7 +22,7 @@ export function requireRoomRole(minimumRole) {
 
       const player = await getDb()
         .collection('players')
-        .findOne({ linkedUserId: req.user.id });
+        .findOne({ linkedUserId: new ObjectId(req.user.id) });
 
       if (!player) {
         return errorResponse(res, 'Player profile not found', [], 404);
@@ -66,7 +66,7 @@ export function requireRoomPermission(...permissions) {
 
       const player = await getDb()
         .collection('players')
-        .findOne({ linkedUserId: req.user.id });
+        .findOne({ linkedUserId: new ObjectId(req.user.id) });
 
       if (!player) {
         return errorResponse(res, 'Player profile not found', [], 404);
