@@ -9,9 +9,11 @@ export const ROLES = Object.freeze({
 
 export const MATCH_STATUS = Object.freeze({
   PENDING: 'pending',
-  IN_PROGRESS: 'in_progress',
-  COMPLETED: 'completed',
-  CANCELLED: 'cancelled',
+  PREPARING: 'preparing',
+  LIVE: 'live',
+  PAUSED: 'paused',
+  FINISHED: 'finished',
+  ARCHIVED: 'archived',
 });
 
 export const ROOM_STATUS = Object.freeze({
