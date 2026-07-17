@@ -1,14 +1,24 @@
 import { calculateTwentyNineScore } from './scorer.js';
 import { calculateTwentyNineWinner } from './winner.js';
-import { validateTwentyNineMatch } from './validator.js';
+import { validateTwentyNineMatch, validateTwentyNineRound } from './validator.js';
 
-export function runTwentyNineEngine(matchData) {
-  if (!validateTwentyNineMatch(matchData)) {
-    throw new Error('Invalid Twenty-Nine match data');
-  }
+export function runTwentyNineEngine(config) {
+  const { matchData, roundData, cumulativeScores } = config;
 
-  const scores = calculateTwentyNineScore(matchData);
-  const winner = calculateTwentyNineWinner(scores);
+  validateTwentyNineMatch(matchData);
+  validateTwentyNineRound(roundData);
 
-  return { scores, winner };
+  const roundResult = calculateTwentyNineScore(roundData);
+
+  const newCumulativeScores = [...cumulativeScores];
+  newCumulativeScores[0] += roundResult.roundScores[0].score;
+  newCumulativeScores[1] += roundResult.roundScores[1].score;
+
+  const winnerResult = calculateTwentyNineWinner({ cumulativeScores: newCumulativeScores });
+
+  return {
+    roundResult,
+    winnerResult,
+    cumulativeScores: newCumulativeScores,
+  };
 }
