@@ -13,7 +13,7 @@ export async function authenticate(req, res, next) {
     req.user = session.user;
     req.session = session.session;
     next();
-  } catch (error) {
+  } catch {
     return errorResponse(res, 'Authentication required', [], 401);
   }
 }

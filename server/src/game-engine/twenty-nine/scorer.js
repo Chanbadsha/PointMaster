@@ -1,4 +1,3 @@
-import { InvalidScoreError } from '../shared/errors.js';
 import { validateTwentyNineRound } from './validator.js';
 
 export function calculateTwentyNineScore(roundData) {

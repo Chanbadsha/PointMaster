@@ -1,14 +1,25 @@
 import { calculateCallBridgeScore } from './scorer.js';
 import { calculateCallBridgeWinner } from './winner.js';
-import { validateCallBridgeMatch } from './validator.js';
+import { validateCallBridgeMatch, validateCallBridgeRound } from './validator.js';
 
-export function runCallBridgeEngine(matchData) {
-  if (!validateCallBridgeMatch(matchData)) {
-    throw new Error('Invalid Call Bridge match data');
+export function runCallBridgeEngine(config) {
+  const { matchData, roundData, cumulativeScores } = config;
+
+  validateCallBridgeMatch(matchData);
+  validateCallBridgeRound(roundData);
+
+  const roundResult = calculateCallBridgeScore(roundData);
+
+  const newCumulativeScores = [...cumulativeScores];
+  for (let i = 0; i < roundResult.roundScores.length; i++) {
+    newCumulativeScores[i] += roundResult.roundScores[i].score;
   }
 
-  const scores = calculateCallBridgeScore(matchData);
-  const winner = calculateCallBridgeWinner(scores);
+  const winnerResult = calculateCallBridgeWinner({ cumulativeScores: newCumulativeScores });
 
-  return { scores, winner };
+  return {
+    roundResult,
+    winnerResult,
+    cumulativeScores: newCumulativeScores,
+  };
 }
