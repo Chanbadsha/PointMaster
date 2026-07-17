@@ -21,6 +21,11 @@ import {
   deleteTeam,
   validateTeams,
 } from '../controllers/team-controller.js';
+import {
+  createRound,
+  listRounds,
+  getScores,
+} from '../controllers/round-controller.js';
 
 const router = Router();
 
@@ -57,5 +62,9 @@ router.post('/:id/teams', resolveMatchRoom, requireRoomRole(ROLES.MODERATOR), cr
 router.post('/:id/teams/validate', resolveMatchRoom, requireRoomRole(ROLES.MODERATOR), validateTeams);
 router.patch('/:id/teams/:teamId', resolveMatchRoom, requireRoomRole(ROLES.MODERATOR), updateTeam);
 router.delete('/:id/teams/:teamId', resolveMatchRoom, requireRoomRole(ROLES.MODERATOR), deleteTeam);
+
+router.post('/:id/rounds', resolveMatchRoom, requireRoomRole(ROLES.MODERATOR), createRound);
+router.get('/:id/rounds', resolveMatchRoom, requireRoomRole(ROLES.PLAYER), listRounds);
+router.get('/:id/scores', resolveMatchRoom, requireRoomRole(ROLES.PLAYER), getScores);
 
 export default router;

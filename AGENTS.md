@@ -52,6 +52,7 @@ pointmaster/
 │   ├── src/hooks/      — custom hooks
 │   ├── src/providers/  — React Context providers
 │   ├── src/lib/        — auth-client, fetch, socket
+│   ├── src/constants/  — shared app constants
 │   └── src/middleware.js
 ├── server/        # Express (ESM — "type": "module")
 │   ├── src/app.js       — Express app factory
@@ -112,9 +113,10 @@ SOCKET_CORS_ORIGIN=http://localhost:3000
 - **MongoDB URI database name is case-sensitive** on Atlas. The existing DB is lowercase `pointmaster`. Using `PointMaster` in URI causes "db already exists with different case" errors and Better Auth sign-up failures.
 - **Better Auth creates its own collections** (`user`, `session`, `account`, `verification`) via the MongoDB adapter. The app also maintains a `users` collection for app-specific profile fields (`linkedPlayerId`).
 - **Rate limiter** is at 100 req/15min on `/api`.
-- **No ESLint config file exists** — `npm run lint` will fail until one is created.
+- **Server ESLint** at `.eslintrc.json` (eslint:recommended). Client uses Next.js built-in (`next lint`). Both `npm run lint` scripts work.
 - **Dark mode default**: root layout has `<html className="dark">` — expect dark theme throughout.
 - **Socket client** (`lib/socket.js`): uses `autoConnect: false` + `withCredentials: true`. Call `connectSocket()` explicitly to connect.
 - **API client** (`lib/fetch.js`): wraps native `fetch()` with `credentials: 'include'`. Use this instead of raw `fetch()` in client components.
+- **`twenty-nine/` game engine** is fully implemented (engine.js, scorer.js, validator.js, winner.js, constants.js, index.js). API: `POST/GET /api/v1/matches/:id/rounds`, `GET /api/v1/matches/:id/scores`.
 - **`call-bridge/` game engine** is fully scaffolded (engine.js, scorer.js, validator.js, winner.js, constants.js, index.js) — same structure as `twenty-nine/`.
 - **`SOCKET_CORS_ORIGIN`** is a separate env var from `CLIENT_URL` — both needed for Socket.IO and CORS respectively.
