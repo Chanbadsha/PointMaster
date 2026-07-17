@@ -25,6 +25,10 @@ async function createIndexes(db) {
     { matchId: 1 },
     { name: 'matchId_1' }
   );
+  await db.collection('rounds').createIndex(
+    { matchId: 1, roundNumber: 1 },
+    { unique: true, name: 'matchId_1_roundNumber_1', partialFilterExpression: { deletedAt: { $exists: false } } }
+  );
   console.log('Database indexes created');
 }
 
