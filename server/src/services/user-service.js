@@ -28,7 +28,6 @@ export async function createUser(userId, userData) {
 }
 
 export async function upsertUser(userId, userData) {
-  const db = getDb();
   const existing = await getUserById(userId);
 
   if (existing) {

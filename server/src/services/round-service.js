@@ -3,7 +3,7 @@ import { getDb } from '../database/index.js';
 import { MATCH_STATUS } from '../constants/index.js';
 import { getMatchById, updateMatch } from './match-service.js';
 import { getTeamsByMatch } from './team-service.js';
-import { validateTwentyNineMatch, calculateTwentyNineScore, calculateTwentyNineWinner } from '../game-engine/twenty-nine/index.js';
+import { calculateTwentyNineScore, calculateTwentyNineWinner } from '../game-engine/twenty-nine/index.js';
 
 const COLLECTION = 'rounds';
 
@@ -129,15 +129,15 @@ export async function createRound(matchId, data) {
     updatedAt: now,
   };
 
+  let winnerTeamId = null;
   if (winnerResult.isComplete) {
-    const winnerTeamId = winnerResult.winner === 0 ? team0Id : team1Id;
+    winnerTeamId = winnerResult.winner === 0 ? team0Id : team1Id;
     round.matchWinner = new ObjectId(winnerTeamId);
   }
 
   const result = await db.collection(COLLECTION).insertOne(round);
 
-  if (winnerResult.isComplete) {
-    const winnerTeamId = winnerResult.winner === 0 ? team0Id : team1Id;
+  if (winnerResult.isComplete && winnerTeamId) {
     await updateMatch(matchId, {
       winner: new ObjectId(winnerTeamId),
       status: MATCH_STATUS.FINISHED,
@@ -148,7 +148,7 @@ export async function createRound(matchId, data) {
   return {
     round: { ...round, _id: result.insertedId },
     matchComplete: winnerResult.isComplete,
-    matchWinner: winnerResult.isComplete ? winnerTeamId : null,
+    matchWinner: winnerTeamId,
   };
 }
 
