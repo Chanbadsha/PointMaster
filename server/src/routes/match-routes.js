@@ -23,6 +23,8 @@ import {
 } from '../controllers/team-controller.js';
 import {
   createRound,
+  updateRound,
+  undoRound,
   listRounds,
   getScores,
 } from '../controllers/round-controller.js';
@@ -64,6 +66,8 @@ router.patch('/:id/teams/:teamId', resolveMatchRoom, requireRoomRole(ROLES.MODER
 router.delete('/:id/teams/:teamId', resolveMatchRoom, requireRoomRole(ROLES.MODERATOR), deleteTeam);
 
 router.post('/:id/rounds', resolveMatchRoom, requireRoomRole(ROLES.MODERATOR), createRound);
+router.patch('/:id/rounds/:roundId', resolveMatchRoom, requireRoomRole(ROLES.MODERATOR), updateRound);
+router.delete('/:id/rounds/:roundId', resolveMatchRoom, requireRoomRole(ROLES.MODERATOR), undoRound);
 router.get('/:id/rounds', resolveMatchRoom, requireRoomRole(ROLES.PLAYER), listRounds);
 router.get('/:id/scores', resolveMatchRoom, requireRoomRole(ROLES.PLAYER), getScores);
 
